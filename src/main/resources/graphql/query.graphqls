@@ -1,7 +1,9 @@
 scalar Date
 
 type Query{
-    countries: [Country!]
+    country(id: ID!): Country!
+    countries (page: Int, size: Int): CountryConnection
+
 }
 
 type Mutation {
@@ -22,7 +24,7 @@ input CountryInput {
 
 input CountryUpdateInput {
     id: ID!
-    name: String!,
+    name: String,
     code: String
 }
 
