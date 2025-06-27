@@ -10,7 +10,7 @@ public record Country(
         UUID id,
 
         @NotBlank(message = "Country code is required")
-        @Size(min = 2, max = 5, message = "Code must be between 2 and 5 characters")
+        @Size(min = 2, max = 100, message = "Code must be between 2 and 5 characters")
         String name,
 
         @NotBlank(message = "Country name is required")

@@ -52,7 +52,7 @@ public class DbCountryService implements CountryService {
     @Override
     @Nonnull
     public Country updateCountryName(@Nonnull CountryUpdateInput country) {
-        CountryEntity countryEntity = countryRepository.findByCode(country.code())
+        CountryEntity countryEntity = countryRepository.findById(country.id())
                 .orElseThrow(() -> new CountryNotFoundException("Country not found with code: " + country.code()));
         countryEntity.setName(country.name());
         countryEntity = countryRepository.save(countryEntity);

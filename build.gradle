@@ -17,7 +17,7 @@ repositories {
     mavenCentral()
 }
 
-ext {
+ext{
     wiremockVersion = "3.10.0"
 }
 
@@ -27,6 +27,9 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation 'org.flywaydb:flyway-core:10.17.1'
     implementation 'org.flywaydb:flyway-database-postgresql:10.17.1'
+    implementation 'org.springframework.data:spring-data-commons'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'com.tailrocks.graphql:graphql-datetime-spring-boot-starter:6.0.0'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql:42.7.3'
     annotationProcessor 'org.projectlombok:lombok'
