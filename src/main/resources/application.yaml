@@ -1,4 +1,8 @@
 spring:
+  grpc:
+    server:
+      servlet:
+        enabled: false
   application:
     name: country_catalog
   graphql:

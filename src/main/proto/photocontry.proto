@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package ru.tolstov.grpc.contry;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "ru.tolstov.grpc.contry";
+option java_outer_classname = "ContryProto";
+
+service ContryService {
+  rpc Photo(IdRequest) returns (PhotoResponse) {}
+  rpc AddPhoto(PhotoRequest) returns (PhotoResponse){}
+  rpc RandomPhotos(CountRequest) returns (stream PhotoResponse) {}
+}
+
+message IdRequest {
+ string id = 1;
+}
+
+message CountRequest {
+  uint32 count = 1;
+}
+
+message PhotoRequest {
+  string  description = 1;
+  string content = 2;
+}
+
+message PhotoResponse {
+  string  id = 1;
+  string  description = 2;
+  google.protobuf.Timestamp lastModifyDate = 3;
+  string content = 4;
+}
+
