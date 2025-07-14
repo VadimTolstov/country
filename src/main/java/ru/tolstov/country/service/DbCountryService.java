@@ -1,16 +1,16 @@
-package ru.tolstov.contry.service;
+package ru.tolstov.country.service;
 
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import ru.tolstov.contry.data.CountryEntity;
-import ru.tolstov.contry.data.CountryRepository;
-import ru.tolstov.contry.domain.Country;
-import ru.tolstov.contry.domain.CountryInput;
-import ru.tolstov.contry.domain.CountryUpdateInput;
-import ru.tolstov.contry.ex.CountryNotFoundException;
+import ru.tolstov.country.data.CountryEntity;
+import ru.tolstov.country.data.CountryRepository;
+import ru.tolstov.country.domain.Country;
+import ru.tolstov.country.domain.CountryInput;
+import ru.tolstov.country.domain.CountryUpdateInput;
+import ru.tolstov.country.ex.CountryNotFoundException;
 
 import java.util.UUID;
 

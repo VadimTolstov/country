@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package ru.tolstov.grpc.contry;
+package ru.tolstov.grpc.country;
 
 import "google/protobuf/timestamp.proto";
 
 option java_multiple_files = true;
-option java_package = "ru.tolstov.grpc.contry";
-option java_outer_classname = "ContryProto";
+option java_package = "ru.tolstov.grpc.country";
+option java_outer_classname = "CountryProto";
 
-service ContryService {
+service CountryService {
   rpc Photo(IdRequest) returns (PhotoResponse) {}
   rpc AddPhoto(PhotoRequest) returns (PhotoResponse){}
   rpc RandomPhotos(CountRequest) returns (stream PhotoResponse) {}

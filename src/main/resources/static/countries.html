@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Список стран - Каталог стран API</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="pb-3 mb-4 border-bottom d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="display-5 fw-bold">Каталог стран</h1>
+        <p class="lead">Интерактивный просмотр и управление странами</p>
+      </div>
+      <nav>
+        <a href="/" class="btn btn-outline-primary me-2">Главная</a>
+        <a href="/graphiql.html" class="btn btn-outline-secondary">GraphiQL</a>
+      </nav>
+    </header>
+
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="input-group">
+          <input type="text" id="search-input" class="form-control" placeholder="Поиск стран...">
+          <button class="btn btn-primary" id="search-button">Поиск</button>
+        </div>
+      </div>
+      <div class="col-md-6 text-end">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCountryModal">
+          Добавить страну
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div id="countries-container" class="country-grid">
+          <!-- Сюда будут загружены карточки стран -->
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">Загрузка списка стран...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно для добавления страны -->
+    <div class="modal fade" id="addCountryModal" tabindex="-1" aria-labelledby="addCountryModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addCountryModalLabel">Добавить новую страну</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+          </div>
+          <div class="modal-body">
+            <form id="add-country-form">
+              <div class="mb-3">
+                <label for="country-name" class="form-label">Название страны</label>
+                <input type="text" class="form-control" id="country-name" required minlength="2" maxlength="100">
+              </div>
+              <div class="mb-3">
+                <label for="country-code" class="form-label">Код страны</label>
+                <input type="text" class="form-control" id="country-code" required minlength="2" maxlength="5">
+                <div class="form-text">2-5 символов, например: RU, US, FR</div>
+              </div>
+              <div class="mb-3">
+                <label for="country-flag" class="form-label">URL флага (необязательно)</label>
+                <input type="url" class="form-control" id="country-flag">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button type="button" class="btn btn-primary" id="save-country-btn">Сохранить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно для редактирования страны -->
+    <div class="modal fade" id="editCountryModal" tabindex="-1" aria-labelledby="editCountryModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editCountryModalLabel">Редактировать страну</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+          </div>
+          <div class="modal-body">
+            <form id="edit-country-form">
+              <input type="hidden" id="edit-country-id">
+              <div class="mb-3">
+                <label for="edit-country-name" class="form-label">Название страны</label>
+                <input type="text" class="form-control" id="edit-country-name" required minlength="2" maxlength="100">
+              </div>
+              <div class="mb-3">
+                <label for="edit-country-code" class="form-label">Код страны</label>
+                <input type="text" class="form-control" id="edit-country-code" required minlength="2" maxlength="5">
+              </div>
+              <div class="mb-3">
+                <label for="edit-country-flag" class="form-label">URL флага</label>
+                <input type="url" class="form-control" id="edit-country-flag">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger me-auto" id="delete-country-btn">Удалить</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button type="button" class="btn btn-primary" id="update-country-btn">Обновить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="pt-3 mt-4 text-muted border-top">
+      <p class="text-center">© 2025 Каталог стран - GraphQL API</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/graphql-client.js"></script>
+  <script>
+    // Создаем экземпляр GraphQL клиента
+    const client = new GraphQLClient();
+    const countriesContainer = document.getElementById('countries-container');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+
+    // Модальные окна и формы
+    const addCountryForm = document.getElementById('add-country-form');
+    const saveCountryBtn = document.getElementById('save-country-btn');
+    const editCountryForm = document.getElementById('edit-country-form');
+    const updateCountryBtn = document.getElementById('update-country-btn');
+    const deleteCountryBtn = document.getElementById('delete-country-btn');
+
+    // Загрузка списка стран при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadCountries);
+
+    // Обработчики событий
+    searchButton.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        handleSearch();
+      }
+    });
+
+    saveCountryBtn.addEventListener('click', handleAddCountry);
+    updateCountryBtn.addEventListener('click', handleUpdateCountry);
+    deleteCountryBtn.addEventListener('click', handleDeleteCountry);
+
+    // Функция загрузки всех стран
+    async function loadCountries() {
+      try {
+        const countries = await client.getAllCountries();
+        renderCountries(countries);
+      } catch (error) {
+        showError('Не удалось загрузить список стран: ' + error.message);
+      }
+    }
+
+    // Функция поиска стран
+    async function handleSearch() {
+      const searchTerm = searchInput.value.trim();
+      if (!searchTerm) {
+        loadCountries();
+        return;
+      }
+
+      try {
+        const countries = await client.searchCountries(searchTerm);
+        renderCountries(countries);
+      } catch (error) {
+        showError('Ошибка поиска: ' + error.message);
+      }
+    }
+
+    // Функция отображения стран
+    function renderCountries(countries) {
+      countriesContainer.innerHTML = '';
+
+      if (countries.length === 0) {
+        countriesContainer.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <p>Страны не найдены</p>
+          </div>
+        `;
+        return;
+      }
+
+      countries.forEach(country => {
+        const card = document.createElement('div');
+        card.className = 'card country-card';
+        card.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${country.name}</h5>
+            <span class="country-code">${country.code}</span>
+            ${country.flagUrl ? `<img src="${country.flagUrl}" alt="Флаг ${country.name}" class="mt-2 img-fluid">` : ''}
+            <button class="btn btn-sm btn-outline-primary mt-3 edit-country-btn" data-country='${JSON.stringify(country)}'>Редактировать</button>
+          </div>
+        `;
+
+        countriesContainer.appendChild(card);
+      });
+
+      // Добавляем обработчики кнопкам редактирования
+      document.querySelectorAll('.edit-country-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const country = JSON.parse(this.getAttribute('data-country'));
+          openEditModal(country);
+        });
+      });
+    }
+
+    // Открытие модального окна редактирования
+    function openEditModal(country) {
+      document.getElementById('edit-country-id').value = country.id;
+      document.getElementById('edit-country-name').value = country.name;
+      document.getElementById('edit-country-code').value = country.code;
+      document.getElementById('edit-country-flag').value = country.flagUrl || '';
+
+      const editModal = new bootstrap.Modal(document.getElementById('editCountryModal'));
+      editModal.show();
+    }
+
+    // Добавление новой страны
+    async function handleAddCountry() {
+      const nameInput = document.getElementById('country-name');
+      const codeInput = document.getElementById('country-code');
+      const flagInput = document.getElementById('country-flag');
+
+      if (!nameInput.value.trim() || !codeInput.value.trim()) {
+        alert('Пожалуйста, заполните обязательные поля');
+        return;
+      }
+
+      const countryInput = {
+        name: nameInput.value.trim(),
+        code: codeInput.value.trim().toUpperCase(),
+        flagUrl: flagInput.value.trim() || null
+      };
+
+      try {
+        await client.addCountry(countryInput);
+        bootstrap.Modal.getInstance(document.getElementById('addCountryModal')).hide();
+        nameInput.value = '';
+        codeInput.value = '';
+        flagInput.value = '';
+        loadCountries();
+        showSuccess('Страна успешно добавлена');
+      } catch (error) {
+        showError('Ошибка при добавлении страны: ' + error.message);
+      }
+    }
+
+    // Обновление страны
+    async function handleUpdateCountry() {
+      const id = document.getElementById('edit-country-id').value;
+      const nameInput = document.getElementById('edit-country-name');
+      const codeInput = document.getElementById('edit-country-code');
+      const flagInput = document.getElementById('edit-country-flag');
+
+      if (!nameInput.value.trim() || !codeInput.value.trim()) {
+        alert('Пожалуйста, заполните обязательные поля');
+        return;
+      }
+
+      const countryUpdateInput = {
+        id: id,
+        name: nameInput.value.trim(),
+        code: codeInput.value.trim().toUpperCase(),
+        flagUrl: flagInput.value.trim() || null
+      };
+
+      try {
+        await client.updateCountry(countryUpdateInput);
+        bootstrap.Modal.getInstance(document.getElementById('editCountryModal')).hide();
+        loadCountries();
+        showSuccess('Страна успешно обновлена');
+      } catch (error) {
+        showError('Ошибка при обновлении страны: ' + error.message);
+      }
+    }
+
+    // Удаление страны
+    async function handleDeleteCountry() {
+      const id = document.getElementById('edit-country-id').value;
+
+      if (confirm('Вы уверены, что хотите удалить эту страну?')) {
+        try {
+          await client.deleteCountry(id);
+          bootstrap.Modal.getInstance(document.getElementById('editCountryModal')).hide();
+          loadCountries();
+          showSuccess('Страна успешно удалена');
+        } catch (error) {
+          showError('Ошибка при удалении страны: ' + error.message);
+        }
+      }
+    }
+
+    // Отображение уведомлений
+    function showSuccess(message) {
+      const alert = document.createElement('div');
+      alert.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3';
+      alert.setAttribute('role', 'alert');
+      alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      document.body.appendChild(alert);
+      setTimeout(() => {
+        alert.remove();
+      }, 3000);
+    }
+
+    function showError(message) {
+      const alert = document.createElement('div');
+      alert.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 end-0 m-3';
+      alert.setAttribute('role', 'alert');
+      alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      document.body.appendChild(alert);
+      setTimeout(() => {
+        alert.remove();
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

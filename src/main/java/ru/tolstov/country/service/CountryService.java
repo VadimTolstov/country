@@ -1,12 +1,11 @@
-package ru.tolstov.contry.service;
+package ru.tolstov.country.service;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import ru.tolstov.contry.domain.Country;
-import ru.tolstov.contry.domain.CountryInput;
-import ru.tolstov.contry.domain.CountryUpdateInput;
+import ru.tolstov.country.domain.Country;
+import ru.tolstov.country.domain.CountryInput;
+import ru.tolstov.country.domain.CountryUpdateInput;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface CountryService {
