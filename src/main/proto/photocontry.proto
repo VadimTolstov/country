@@ -2,35 +2,44 @@ syntax = "proto3";
 
 package ru.tolstov.grpc.country;
 
-import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
 option java_package = "ru.tolstov.grpc.country";
 option java_outer_classname = "CountryProto";
 
 service CountryService {
-  rpc Photo(IdRequest) returns (PhotoResponse) {}
-  rpc AddPhoto(PhotoRequest) returns (PhotoResponse){}
-  rpc RandomPhotos(CountRequest) returns (stream PhotoResponse) {}
+  rpc Country(IdRequest) returns (CountryResponse) {}
+  rpc Countries(google.protobuf.Empty) returns (CountryListResponse) {}
+  rpc AddCountry(CountryRequest) returns (CountryResponse){}
+  rpc AddStreamCountry(stream CountryRequest) returns (CountResponse){}
+  rpc RandomCountry(CountRequest) returns (stream CountryResponse) {}
 }
 
 message IdRequest {
  string id = 1;
 }
 
+message CountResponse {
+  uint32 count = 1;
+}
+
 message CountRequest {
   uint32 count = 1;
 }
 
-message PhotoRequest {
-  string  description = 1;
-  string content = 2;
+message CountryRequest {
+  string  name = 1;
+  string code = 2;
 }
 
-message PhotoResponse {
+message CountryResponse {
   string  id = 1;
-  string  description = 2;
-  google.protobuf.Timestamp lastModifyDate = 3;
-  string content = 4;
+  string  name = 2;
+  string code = 3;
+}
+
+message CountryListResponse {
+  repeated CountryResponse countries = 1;
 }
 

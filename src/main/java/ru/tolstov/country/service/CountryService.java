@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface CountryService {
 
     Country getCountry(UUID id);
+
     Slice<Country> allCountry(Pageable pageable);
 
     Country addCountry(CountryInput country);
