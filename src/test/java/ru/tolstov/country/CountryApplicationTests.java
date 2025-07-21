@@ -1,11 +1,10 @@
-package ru.tolstov.contry;
+package ru.tolstov.country;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.tolstov.contry.domain.Country;
-import ru.tolstov.contry.domain.CountryInput;
-import ru.tolstov.contry.service.CountryService;
+import ru.tolstov.country.domain.CountryInput;
+import ru.tolstov.country.service.CountryService;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

@@ -1,4 +1,4 @@
-package ru.tolstov.contry.ex;
+package ru.tolstov.country.ex;
 
 public class CountryNotFoundException extends RuntimeException {
     public CountryNotFoundException(String message) {

@@ -1,4 +1,8 @@
 spring:
+  grpc:
+    server:
+      servlet:
+        enabled: false
   application:
     name: country_catalog
   graphql:
@@ -39,4 +43,15 @@ spring:
 server:
   port: 8282
 
-
+logging:
+  file:
+    path: ./logs/country
+  level:
+    root: INFO
+    org.springframework.kafka: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+    org.springframework.web.cors: INFO
+    org.apache.catalina.filters.RequestDumperFilter: INFO
+    org.springframework.boot.autoconfigure: INFO

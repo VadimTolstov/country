@@ -1,4 +1,4 @@
-package ru.tolstov.contry.service;
+package ru.tolstov.country.service;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;

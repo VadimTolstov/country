@@ -1,19 +1,24 @@
-package ru.tolstov.contry.service;
+package ru.tolstov.country.service;
 
 import jakarta.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import ru.tolstov.contry.data.CountryEntity;
-import ru.tolstov.contry.data.CountryRepository;
-import ru.tolstov.contry.domain.Country;
-import ru.tolstov.contry.domain.CountryInput;
-import ru.tolstov.contry.domain.CountryUpdateInput;
-import ru.tolstov.contry.ex.CountryNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tolstov.country.data.CountryEntity;
+import ru.tolstov.country.data.CountryRepository;
+import ru.tolstov.country.domain.Country;
+import ru.tolstov.country.domain.CountryInput;
+import ru.tolstov.country.domain.CountryUpdateInput;
+import ru.tolstov.country.ex.CountryNotFoundException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class DbCountryService implements CountryService {
 
@@ -41,13 +46,25 @@ public class DbCountryService implements CountryService {
     @Nonnull
     public Page<Country> allCountry(Pageable pageable) {
         return countryRepository.findAll(pageable)
-                .map(ce -> {
-                    return new Country(
-                            ce.getId(),
-                            ce.getName(),
-                            ce.getCode()
-                    );
-                });
+                .map(ce -> new Country(
+                        ce.getId(),
+                        ce.getName(),
+                        ce.getCode()
+                ));
+    }
+
+    @Override
+    public List<Country> allCountriesGql() {
+        return countryRepository.findAll()
+                .stream()
+                .map(countryEntity ->
+                        new Country(
+                                countryEntity.getId(),
+                                countryEntity.getName(),
+                                countryEntity.getCode()
+                        )
+                )
+                .toList();
     }
 
     @Override
@@ -75,5 +92,22 @@ public class DbCountryService implements CountryService {
         countryEntity.setCode(country.code() != null ? country.code() : countryEntity.getCode());
         countryEntity = countryRepository.save(countryEntity);
         return new Country(country.id(), countryEntity.getName(), countryEntity.getCode());
+    }
+
+    @Override
+    @Transactional
+    public int addBatch(List<CountryInput> countries) {
+        List<CountryEntity> entities = new ArrayList<>();
+
+        for (CountryInput input : countries) {
+            if (input.name() != null && input.code() != null) {
+                entities.add(new CountryEntity()
+                        .setName(input.name())
+                        .setCode(input.code()));
+            }
+        }
+
+        List<CountryEntity> savedEntities = countryRepository.saveAll(entities);
+        return savedEntities.size();
     }
 }

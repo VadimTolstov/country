@@ -1,4 +1,4 @@
-package ru.tolstov.contry.config;
+package ru.tolstov.country.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

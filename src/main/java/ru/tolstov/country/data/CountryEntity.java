@@ -1,4 +1,4 @@
-package ru.tolstov.contry.data;
+package ru.tolstov.country.data;
 
 
 import jakarta.persistence.*;
