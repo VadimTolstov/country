@@ -13,7 +13,7 @@ service CountryService {
   rpc Countries(google.protobuf.Empty) returns (CountryListResponse) {}
   rpc CountriesPage(CountriesRequest) returns (CountryListResponse) {}
   rpc AddCountry(CountryRequest) returns (CountryResponse){}
-  rpc AddStreamCountry(stream CountryRequest) returns (CountResponse){}
+  rpc AddStreamCountry(stream CountryRequest) returns (StreamAddResponse){}
   rpc RandomCountry(CountRequest) returns (stream CountryResponse) {}
 }
 

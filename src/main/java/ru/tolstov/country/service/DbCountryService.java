@@ -95,28 +95,19 @@ public class DbCountryService implements CountryService {
     }
 
     @Override
+    @Transactional
     public int addBatch(List<CountryInput> countries) {
         List<CountryEntity> entities = new ArrayList<>();
-        int savedCount = 0;
 
         for (CountryInput input : countries) {
-            try {
-                // Проверка уникальности кода перед добавлением
-                if (countryRepository.existsByCode(input.code())) {
-                    log.warn("Duplicate country code: {}", input.code());
-                    continue;
-                }
-
-                CountryEntity entity = new CountryEntity()
+            if (input.name() != null && input.code() != null) {
+                entities.add(new CountryEntity()
                         .setName(input.name())
-                        .setCode(input.code());
-
-                countryRepository.save(entity);
-                savedCount++;
-            } catch (Exception e) {
-                log.error("Error saving country: {}", input, e);
+                        .setCode(input.code()));
             }
         }
-        return savedCount;
+
+        List<CountryEntity> savedEntities = countryRepository.saveAll(entities);
+        return savedEntities.size();
     }
 }

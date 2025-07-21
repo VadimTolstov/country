@@ -13,6 +13,7 @@ import ru.tolstov.country.domain.Country;
 import ru.tolstov.country.domain.CountryInput;
 import ru.tolstov.grpc.country.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -114,35 +115,78 @@ public class GrpcCountryService extends CountryServiceGrpc.CountryServiceImplBas
     }
 
     @Override
-    public StreamObserver<CountryRequest> addStreamCountry(StreamObserver<CountResponse> responseObserver) {
-        AtomicInteger count = new AtomicInteger();
-
-        return new StreamObserver<>() {
+    public StreamObserver<CountryRequest> addStreamCountry(StreamObserver<StreamAddResponse> responseObserver) {
+        return new StreamObserver<CountryRequest>() {
+            private static final int BATCH_SIZE = 50;
+            private final List<CountryInput> batch = new ArrayList<>();
+            private final List<String> errors = new ArrayList<>();
+            private int totalSuccess = 0;
 
             @Override
-            public void onNext(CountryRequest countryRequest) {
-                countryService.addCountry(
-                        new CountryInput(
-                                countryRequest.getCode(),
-                                countryRequest.getName()
-                        )
-                );
+            public void onNext(CountryRequest request) {
+                try {
+                    // Проверяем валидность данных
+                    if (request.getName().isEmpty() || request.getCode().isEmpty()) {
+                        errors.add("Invalid request: name or code is empty");
+                        return;
+                    }
 
-                count.incrementAndGet();
+                    // Добавляем в текущий пакет
+                    batch.add(new CountryInput(request.getName(), request.getCode()));
+
+                    // Если пакет заполнен - обрабатываем
+                    if (batch.size() >= BATCH_SIZE) {
+                        processBatch();
+                    }
+                } catch (Exception e) {
+                    errors.add("Processing error: " + e.getMessage());
+                }
+            }
+
+            private void processBatch() {
+                if (batch.isEmpty()) return;
+
+                try {
+                    int savedCount = countryService.addBatch(batch);
+                    totalSuccess += savedCount;
+
+                    // Если не все сохранились - добавляем ошибки
+                    if (savedCount < batch.size()) {
+                        int failedCount = batch.size() - savedCount;
+                        errors.add(failedCount + " items failed in batch save");
+                    }
+                } catch (Exception e) {
+                    errors.add("Batch save error: " + e.getMessage());
+                } finally {
+                    batch.clear();
+                }
             }
 
             @Override
-            public void onError(Throwable throwable) {
-                responseObserver.onError(throwable);
+            public void onError(Throwable t) {
+                responseObserver.onError(Status.INTERNAL
+                        .withDescription("Stream processing failed: " + t.getMessage())
+                        .asRuntimeException());
             }
 
             @Override
             public void onCompleted() {
-                CountResponse response = CountResponse.newBuilder()
-                        .setCount(count.get())
+                // Обрабатываем последний пакет
+                processBatch();
+
+                // Формируем детализированный ответ
+                StreamAddResponse response = StreamAddResponse.newBuilder()
+                        .setSuccessCount(totalSuccess)
+                        .addAllErrors(errors)
                         .build();
+
                 responseObserver.onNext(response);
                 responseObserver.onCompleted();
+
+                // Логируем результаты
+                if (!errors.isEmpty()) {
+                    log.error("Completed stream processing with {} errors", errors.size());
+                }
             }
         };
     }
