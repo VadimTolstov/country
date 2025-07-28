@@ -31,6 +31,6 @@ public class CountryMutationController {
     @MutationMapping
     @ResponseStatus(HttpStatus.OK)
     public Country updateCountry(@Argument CountryUpdateInput input) {
-        return countryService.updateCountryName(input);
+        return countryService.updateCountry(input);
     }
 }

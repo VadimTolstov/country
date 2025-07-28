@@ -2,7 +2,6 @@ package ru.tolstov.country.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import ru.tolstov.country.domain.Country;
 import ru.tolstov.country.domain.CountryInput;
 import ru.tolstov.country.domain.CountryUpdateInput;
@@ -18,7 +17,7 @@ public interface CountryService {
 
     Country addCountry(CountryInput country);
 
-    Country updateCountryName(CountryUpdateInput country);
+    Country updateCountry(CountryUpdateInput country);
 
     List<Country> allCountriesGql();
 

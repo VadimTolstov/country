@@ -60,4 +60,4 @@ api:
   version: v1.0
 
 country:
-  base-uri: 'http://127.0.0.1:8181'
+  base-uri: 'http://127.0.0.1:8282'
