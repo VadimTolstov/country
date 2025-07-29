@@ -55,3 +55,9 @@ logging:
     org.springframework.web.cors: INFO
     org.apache.catalina.filters.RequestDumperFilter: INFO
     org.springframework.boot.autoconfigure: INFO
+
+api:
+  version: v1.0
+
+country:
+  base-uri: 'http://127.0.0.1:8282'
